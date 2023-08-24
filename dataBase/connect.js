@@ -3,10 +3,10 @@ import mysql from "mysql2/promise"
 let db
 try {
 	const pool = mysql.createPool({
-		host: "db4free.net",
-		user: "modessam",
-		password: "YE!5D8#8R*tyeYR",
-		database: "schedulerdb4",
+		host: process.env.DB_HOST,
+		user: process.env.DB_USER,
+		password: process.env.DB_PASSWORD,
+		database: process.env.DB_NAME,
 	})
 	db = await pool.getConnection()
 } catch (err) {
