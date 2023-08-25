@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser";
 import userRoute from './routes/userRoutes.js';
 import superAdminRoute from './routes/superAdminRoutes.js';
 import { notFound, errorHandler } from "./middleWare/ErrorHandling.js"
+import { protect } from "./middleWare/authentication.js"
 
 
 const app = express();
@@ -18,7 +19,7 @@ app.get("/", async (req, res) => {
 });
 
 app.use("/api/user", userRoute)
-app.use("/api/superAdmin", superAdminRoute)
+app.use("/api/superAdmin", protect, superAdminRoute)
 app.use(notFound)
 app.use(errorHandler)
 

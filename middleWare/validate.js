@@ -1,5 +1,5 @@
 import db from "../dataBase/connect.js";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import validator from "email-validator";
 
 export const loginCheck = async (email, password) => {
@@ -19,14 +19,14 @@ export const loginCheck = async (email, password) => {
         throw Error('email is not found');
     }
 
-    // // to use after hashing passwords
-    // try {
-    //     const auth = await bcrypt.compare(password, user.password);
-    //     return user;
-    // }
-    // catch (err) {
-    //     throw Error('incorrect password');
-    // }
+    // to use after hashing passwords
+    try {
+        const auth = await bcrypt.compare(password, user.password);
+        return user;
+    }
+    catch (err) {
+        throw Error('incorrect password');
+    }
 
     if (user.password == password) {
         return user;

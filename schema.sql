@@ -68,9 +68,11 @@ CREATE TABLE classes(
 -- days 
 
 CREATE TABLE days(
-	day_id INT NOT NULL,
+	day_id INT AUTO_INCREMENT PRIMARY KEY,
     day_date DATE NOT NULL,
-    needed_employees INT NOT NULL,
+    needed_hall_observers INT NOT NULL,
+    needed_floor_observers INT NOT NULL,
+    needed_building_observers INT NOT NULL,
 	CONSTRAINT days_pk PRIMARY KEY (day_id)
 );
 
@@ -114,3 +116,10 @@ CREATE TABLE assignments(
 
 
 
+CREATE TABLE vote(
+    vote_id INT NOT NULL,
+    hall_observers_work_days INT NOT NULL,
+    floor_observers_work_days INT NOT NULL,
+    building_observers_work_days INT NOT NULL,
+    CONSTRAINT vote_pk PRIMARY KEY (vote_id)
+);
