@@ -8,7 +8,7 @@ export const protect = asyncHandler(async (req, res, next) => {
 	if (!authHeader.startsWith("Bearer ")) throw new Error("authentication faild")
 	try {
 		const load = jwt.verify(token, process.env.JWT_SECRET)
-		// assign load to req.body ...... to be continued
+		req.body.user = load;
 		next()
 	} catch (err) {
 		res.status(401)
