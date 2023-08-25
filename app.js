@@ -2,7 +2,9 @@ import express from "express";
 import db from "./dataBase/connect.js";
 import cookieParser from "cookie-parser";
 import userRoute from './routes/userRoutes.js';
-import { notFound, errorHandler } from "./middleWare/ErrorHandling.js";
+import superAdminRoute from './routes/superAdminRoutes.js';
+import { notFound, errorHandler } from "./middleWare/ErrorHandling.js"
+
 
 const app = express();
 const Port = process.env.PORT;
@@ -15,9 +17,11 @@ app.get("/", async (req, res) => {
 	res.send(data);
 });
 
-app.use("/api/user", userRoute);
-app.use(notFound);
-app.use(errorHandler);
+app.use("/api/user", userRoute)
+app.use("/api/superAdmin", superAdminRoute)
+app.use(notFound)
+app.use(errorHandler)
+
 
 const start = () => {
 	if (!db) {
