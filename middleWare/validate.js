@@ -19,16 +19,8 @@ export const loginCheck = async (email, password) => {
         throw Error('email is not found');
     }
 
-    // to use after hashing passwords
-    try {
-        const auth = await bcrypt.compare(password, user.password);
-        return user;
-    }
-    catch (err) {
-        throw Error('incorrect password');
-    }
-
-    if (user.password == password) {
+    const ok = await bcrypt.compare(password, user.password);
+    if(ok) {
         return user;
     }
     else {
