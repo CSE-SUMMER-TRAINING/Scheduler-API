@@ -1,10 +1,13 @@
-import asyncHandler from "express-async-handler"
-import db from "../dataBase/connect.js"
+import asyncHandler from "express-async-handler";
+import db from "../dataBase/connect.js";
+import { isPositiveInteger, isArray } from "validate-datatypes";
+import isValidDate from "validate-date";
+
 export const createVote = asyncHandler(async (req, res, next) => {
 	// req ==> list of days ====> days table in the database
-	const loggedInUsr = req.user
+	const loggedInUsr = req.user;
 
-	if (req.user.priority != 0) throw new Error("You are not authorized to create votes")
+	if (req.user.priority != 0) throw new Error("You are not authorized to create votes");
 
 	const {
 		neededHallObservers, // عدد الملاحظين لليوم
@@ -15,10 +18,30 @@ export const createVote = asyncHandler(async (req, res, next) => {
 		buildingObserversWorkDays, // عدد الايام المطلوبة لمراقب
 		daysList,
 		duration,
-	} = req.body
-	// validate each item here and make sure there is no already any vote is running
-	//...
-	// continue coding
+	} = req.body;
+
+	if (!isPositiveInteger(+neededHallObservers) || !isPositiveInteger(+neededFloorObservers) || !isPositiveInteger(+neededBuildingObservers)) {
+		throw Error("Number of observers must be an integer > 0");
+	}
+	if (!isPositiveInteger(floorObserversWorkDays) || !isPositiveInteger(buildingObserversWorkDays)) {
+		throw Error("Number of work days must be an integer > 0");
+	}
+	if (!isPositiveInteger(duration)) {
+		throw Error("Vote duration must be an integer > 0");
+	}
+	if (!isArray(daysList)) {
+		throw Error("The list of days is required");
+	}
+	daysList.forEach(date => {
+		if (!isValidDate(date, "boolean")) {
+			throw Error("Invalid dates");
+		}
+	});
+	
+	const [vote] = await db.query('SELECT * FROM vote');
+	if(vote.length) {
+		throw Error("The current voting is not over yet");
+	}
 
 	try {
 		// days for each priority selection
@@ -31,24 +54,24 @@ export const createVote = asyncHandler(async (req, res, next) => {
 				buildingObserversWorkDays,
 				duration,
 			]
-		)
-		let id = 105 // just dummy id
+		);
+		let id = 105; // just dummy id
 		// insert each day in the list with the specified data
 		// we need to make the id auto increment
 		for (let dayDate of daysList) {
-			console.log(dayDate)
+			console.log(dayDate);
 			await db.query(`INSERT INTO days VALUES (? ,? ,? ,? ,?)`, [
 				id++,
 				dayDate,
 				neededHallObservers,
 				neededFloorObservers,
 				neededBuildingObservers,
-			])
+			]);
 		}
 		// send notification to all taskers about this vote
-		res.json(data)
+		res.json(data);
 	} catch (err) {
-		throw new Error(`vote creation falid ${err}`)
+		throw new Error(`vote creation falid ${err}`);
 	}
 })
 /**
