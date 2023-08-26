@@ -6,9 +6,9 @@ import nodemailer from "nodemailer";
 
 export const createVote = asyncHandler(async (req, res, next) => {
 	// req ==> list of days ====> days table in the database
-	const loggedInUsr = req.user;
+	const loggedInUsr = req.user
 
-	if (req.user.priority != 0) throw new Error("You are not authorized to create votes");
+	if (req.user.priority != 0) throw new Error("You are not authorized to create votes")
 
 	const {
 		voteName,
@@ -20,40 +20,40 @@ export const createVote = asyncHandler(async (req, res, next) => {
 		buildingObserversWorkDays, // عدد الايام المطلوبة لمراقب
 		daysList,
 		duration,
-	} = req.body;
+	} = req.body
 
 	if (
 		!isPositiveInteger(+neededHallObservers) ||
 		!isPositiveInteger(+neededFloorObservers) ||
 		!isPositiveInteger(+neededBuildingObservers)
 	) {
-		throw Error("Number of observers must be an integer > 0");
+		throw Error("Number of observers must be an integer > 0")
 	}
 	if (
 		!isPositiveInteger(+floorObserversWorkDays) ||
 		!isPositiveInteger(+buildingObserversWorkDays)
 	) {
-		throw Error("Number of work days must be an integer > 0");
+		throw Error("Number of work days must be an integer > 0")
 	}
 	if (!isPositiveInteger(+duration)) {
-		throw Error("Vote duration must be an integer > 0");
+		throw Error("Vote duration must be an integer > 0")
 	}
 	if (!isArray(daysList)) {
-		throw Error("The list of days is required");
+		throw Error("The list of days is required")
 	}
-	daysList.forEach(date => {
+	daysList.forEach((date) => {
 		if (!isValidDate(date, "boolean")) {
-			throw Error("Invalid dates");
+			throw Error("Invalid dates")
 		}
-	});
+	})
 
-	const [vote] = await db.query('SELECT * FROM vote');
+	const [vote] = await db.query("SELECT * FROM vote")
 	if (vote.length) {
 		return res.json({
 			hasVote: true,
 			startTime: vote[0].start_time,
 			duration: vote[0].duration_in_hours,
-		});
+		})
 	}
 
 	try {
@@ -68,9 +68,9 @@ export const createVote = asyncHandler(async (req, res, next) => {
 				duration,
 				voteName,
 			]
-		);
-		
-		let id = 6; // just dummy id
+		)
+
+		let id = 6 // just dummy id
 
 		// insert each day in the list with the specified data
 		for (let dayDate of daysList) {
@@ -80,64 +80,69 @@ export const createVote = asyncHandler(async (req, res, next) => {
 				neededHallObservers,
 				neededFloorObservers,
 				neededBuildingObservers,
-			]);
+			])
 		}
 
 		// send notification to all taskers about this vote
 		const transporter = nodemailer.createTransport({
-			service: 'hotmail',
+			service: "hotmail",
 			auth: {
-				user: '',
-				pass: ''
-			}
-		});
+				user: "",
+				pass: "",
+			},
+		})
 
 		const mailOptions = {
-			from: '',
-			to: '',
-			subject: '',
-			text: ''
-		};
+			from: "",
+			to: "",
+			subject: "",
+			text: "",
+		}
 
 		transporter.sendMail(mailOptions, (error, info) => {
 			if (error) {
-				throw Error("Email is not sent");
+				throw Error("Email is not sent")
+			} else {
+				res.json({ msg: "Email is sent", data })
 			}
-			else {
-				res.json({ msg: 'Email is sent', data });
-			}
-		});
-
+		})
+	} catch (err) {
+		throw new Error(`vote creation falid ${err}`)
 	}
-	catch (err) {
-		throw new Error(`vote creation falid ${err}`);
-	}
-});
+})
 
 function hoursBetweenDates(startDate, endDate) {
-  const millisecondsPerHour = 1000 * 60 * 60;
-  const elapsedTime = endDate - startDate;
-  const hours = elapsedTime / millisecondsPerHour;
-  return hours;
+	const millisecondsPerHour = 1000 * 60 * 60
+	const elapsedTime = endDate - startDate
+	const hours = elapsedTime / millisecondsPerHour
+	return hours
 }
 export const isVote = asyncHandler(async (req, res, next) => {
-  const [vote] = await db.query("SELECT * FROM vote");
-  if (vote.length) {
-    const currentDateTime = new Date();
-    let x = hoursBetweenDates(vote[0].start_time, currentDateTime);
-    console.log(x);
-    if (x > vote[0].duration_in_hours) {
-      db.query("DELETE FROM vote");
-      return res.json({ hasVote: false });
-    }
-    return res.json({
-      hasVote: true,
-      startTime: vote[0].start_time,
-      duration: vote[0].duration_in_hours,
-    });
-  } else res.json({ hasVote: false });
-});
+	const [vote] = await db.query("SELECT * FROM vote")
+	console.log(vote)
+	if (vote.length) {
+		const currentDateTime = new Date()
+		console.log(currentDateTime)
+		let x = hoursBetweenDates(vote[0].start_time, currentDateTime)
+		console.log(x)
+		if (x > vote[0].duration_in_hours) {
+			db.query("DELETE FROM vote")
+			return res.json({ hasVote: false })
+		}
+		return res.json({
+			hasVote: true,
+			startTime: vote[0].start_time,
+			duration: vote[0].duration_in_hours,
+		})
+	} else res.json({ hasVote: false })
+})
 
+
+export const fetchVotes = asyncHandler(async (req, res, next) => {
+
+
+
+})
 
 /**
  * 
