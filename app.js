@@ -44,9 +44,9 @@ io.on("connection", (socket) => {
 	socket.on("chooseDay", (data) => {
 		console.log(data)
 
+		// dasfdfafda
 
-
-		let ff = "gasadfdafdafgdafda"
+		let ff = "ررgas"
 		socket.emit("done", ff)
 	})
 })
