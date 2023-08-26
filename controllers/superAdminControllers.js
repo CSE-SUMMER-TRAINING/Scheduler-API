@@ -144,8 +144,61 @@ export const isVote = asyncHandler(async (req, res, next) => {
 	} else res.json({ hasVote: false });
 });
 
+function formatTime(seconds) {
+  const days = Math.floor(seconds / 86400);
+  const hours = Math.floor((seconds % 86400) / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const secs = seconds % 60;
+
+  return `${days.toString().padStart(2, '0')}d ${hours.toString().padStart(2, '0')}h ${minutes.toString().padStart(2, '0')}m ${secs.toString().padStart(2, '0')}s`;
+}
+
+// function countdownTimer(durationInSeconds) {
+//   let remainingTime = durationInSeconds;
+
+//   const interval = setInterval(() => {
+//     if (remainingTime <= 0) {
+//       clearInterval(interval);
+//       console.log("Countdown finished!");
+//     } else {
+//       console.log(formatTime(remainingTime));
+//       remainingTime--;
+//     }
+//   }, 1000); // Update every second
+// }
+
+// // Example usage: Countdown for 3 days, 2 hours, 30 minutes, and 15 seconds
+// countdownTimer(3 * 24 * 3600 + 2 * 3600 + 30 * 60 + 15);
+
 export const fetchVotes = asyncHandler(async (req, res, next) => {
-
-
-
+  const [vote] = await db.query("SELECT * FROM vote");
+  console.log(vote);
+  if (vote.length) {
+    const currentDateTime = new Date();
+    // console.log(currentDateTime);
+    // let x = hoursBetweenDates(vote[0].start_time, currentDateTime);
+    // console.log(x);
+    if (x > vote[0].duration_in_hours) {
+      db.query("DELETE FROM vote");
+      return res.json({ hasVote: false });
+    }
+    const elapsedTime = currentDateTime - vote[0].start_time;
+    return res.json({
+      hasVote: true,
+      voteTitle: vote[0].vote_title,
+      neededHallObservers: vote[0].neededHallObservers,
+      neededFloorObservers: vote[0].neededFloorObservers,
+      neededBuildingObservers: vote[0].neededBuildingObservers,
+      timeInMilliSeconds: elapsedTime,
+    });
+  } else res.json({ hasVote: false });
 });
+
+/**
+ *
+ *
+ * 1- database
+ * 2- notification
+ * 3- validation
+ *
+ */
