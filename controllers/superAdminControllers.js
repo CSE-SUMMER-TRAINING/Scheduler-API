@@ -114,17 +114,29 @@ export const createVote = asyncHandler(async (req, res, next) => {
 	}
 });
 
+function hoursBetweenDates(startDate, endDate) {
+  const millisecondsPerHour = 1000 * 60 * 60;
+  const elapsedTime = endDate - startDate;
+  const hours = elapsedTime / millisecondsPerHour;
+  return hours;
+}
 export const isVote = asyncHandler(async (req, res, next) => {
-	const [vote] = await db.query("SELECT * FROM vote");
-	if (vote.length) {
-		return res.json({
-			hasVote: true,
-			startTime: vote[0].start_time,
-			duration: vote[0].duration_in_hours,
-		});
-	}
-	else res.json({ hasVote: false });
-})
+  const [vote] = await db.query("SELECT * FROM vote");
+  if (vote.length) {
+    const currentDateTime = new Date();
+    let x = hoursBetweenDates(vote[0].start_time, currentDateTime);
+    console.log(x);
+    if (x > vote[0].duration_in_hours) {
+      db.query("DELETE FROM vote");
+      return res.json({ hasVote: false });
+    }
+    return res.json({
+      hasVote: true,
+      startTime: vote[0].start_time,
+      duration: vote[0].duration_in_hours,
+    });
+  } else res.json({ hasVote: false });
+});
 
 
 /**
