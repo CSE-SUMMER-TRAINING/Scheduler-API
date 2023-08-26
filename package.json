@@ -24,7 +24,8 @@
     "jsonwebtoken": "^9.0.1",
     "mysql2": "^3.6.0",
     "socket.io": "^4.7.2",
-    "validator": "^13.11.0"
+    "validate-datatypes": "^1.0.0",
+    "validate-date": "^2.1.0"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
