@@ -186,9 +186,12 @@ export const fetchVotes = asyncHandler(async (req, res, next) => {
     return res.json({
       hasVote: true,
       voteTitle: vote[0].vote_title,
-      neededHallObservers: vote[0].neededHallObservers,
-      neededFloorObservers: vote[0].neededFloorObservers,
-      neededBuildingObservers: vote[0].neededBuildingObservers,
+      neededHallObservers: vote[0].hall_observers_work_days,
+      neededFloorObservers: vote[0].floor_observers_work_days,
+      neededBuildingObservers: vote[0].building_observers_work_days,
+      defaultHallObservers: vote[0].default_hall_observers_work_days,
+      defaultFloorObservers: vote[0].default_floor_observers_work_days,
+      defaultBuildingObservers: vote[0].default_building_observers_work_days,
       timeInMilliSeconds: elapsedTime,
     });
   } else res.json({ hasVote: false });
