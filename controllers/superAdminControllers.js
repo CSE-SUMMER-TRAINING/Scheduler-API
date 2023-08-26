@@ -23,10 +23,10 @@ export const createVote = asyncHandler(async (req, res, next) => {
 	if (!isPositiveInteger(+neededHallObservers) || !isPositiveInteger(+neededFloorObservers) || !isPositiveInteger(+neededBuildingObservers)) {
 		throw Error("Number of observers must be an integer > 0");
 	}
-	if (!isPositiveInteger(floorObserversWorkDays) || !isPositiveInteger(buildingObserversWorkDays)) {
+	if (!isPositiveInteger(+floorObserversWorkDays) || !isPositiveInteger(+buildingObserversWorkDays)) {
 		throw Error("Number of work days must be an integer > 0");
 	}
-	if (!isPositiveInteger(duration)) {
+	if (!isPositiveInteger(+duration)) {
 		throw Error("Vote duration must be an integer > 0");
 	}
 	if (!isArray(daysList)) {
