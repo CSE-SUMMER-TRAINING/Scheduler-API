@@ -111,7 +111,6 @@ CREATE TABLE assignments(
 	CONSTRAINT day_assignments_fk foreign key (day_id) references days(day_id),
     CONSTRAINT branch_assignments_fk foreign key (branch_id) references branch(branch_id),
 	CONSTRAINT employee_assignments_fk foreign key (employee_id) references employees(employee_id)
-    
 );
 
 
@@ -121,5 +120,7 @@ CREATE TABLE vote(
     hall_observers_work_days INT NOT NULL,
     floor_observers_work_days INT NOT NULL,
     building_observers_work_days INT NOT NULL,
+    start_time DATETIME DEFAULT CURRENT_TIMESTAMP
+    duration_in_hours INT not null,
     CONSTRAINT vote_pk PRIMARY KEY (vote_id)
 );
