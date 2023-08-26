@@ -14,7 +14,7 @@ export const createVote = asyncHandler(async (req, res, next) => {
 		floorObserversWorkDays, //عدد الايام المطلوبة لمراقب الدور
 		buildingObserversWorkDays, // عدد الايام المطلوبة لمراقب
 		daysList,
-		start
+		duration,
 	} = req.body
 	// validate each item here and make sure there is no already any vote is running
 	//...
@@ -22,13 +22,17 @@ export const createVote = asyncHandler(async (req, res, next) => {
 
 	try {
 		// days for each priority selection
-		const [data] = await db.query(`INSERT INTO vote VALUES (? ,? ,? ,?)`, [
-			8849, //just dummy id
-			hallObserversWorkDays,
-			floorObserversWorkDays,
-			buildingObserversWorkDays,
-		])
-		let id = 99 // just dummy id
+		const [data] = await db.query(
+			`INSERT INTO vote (vote_id,hall_observers_work_days,floor_observers_work_days,building_observers_work_days,duration_in_hours) VALUES (? ,? ,? ,?,?)`,
+			[
+				8850, //just dummy id
+				hallObserversWorkDays,
+				floorObserversWorkDays,
+				buildingObserversWorkDays,
+				duration,
+			]
+		)
+		let id = 105 // just dummy id
 		// insert each day in the list with the specified data
 		// we need to make the id auto increment
 		for (let dayDate of daysList) {
