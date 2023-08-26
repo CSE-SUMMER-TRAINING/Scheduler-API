@@ -2,6 +2,7 @@ import asyncHandler from "express-async-handler";
 import db from "../dataBase/connect.js";
 import { isPositiveInteger, isArray } from "validate-datatypes";
 import isValidDate from "validate-date";
+import nodemailer from "nodemailer";
 
 export const createVote = asyncHandler(async (req, res, next) => {
 	// req ==> list of days ====> days table in the database
@@ -37,9 +38,9 @@ export const createVote = asyncHandler(async (req, res, next) => {
 			throw Error("Invalid dates");
 		}
 	});
-	
+
 	const [vote] = await db.query('SELECT * FROM vote');
-	if(vote.length) {
+	if (vote.length) {
 		throw Error("The current voting is not over yet");
 	}
 
@@ -48,18 +49,17 @@ export const createVote = asyncHandler(async (req, res, next) => {
 		const [data] = await db.query(
 			`INSERT INTO vote (vote_id,hall_observers_work_days,floor_observers_work_days,building_observers_work_days,duration_in_hours) VALUES (? ,? ,? ,?,?)`,
 			[
-				8850, //just dummy id
+				8865, //just dummy id
 				hallObserversWorkDays,
 				floorObserversWorkDays,
 				buildingObserversWorkDays,
 				duration,
 			]
 		);
-		let id = 105; // just dummy id
+		let id = 200; // just dummy id
 		// insert each day in the list with the specified data
 		// we need to make the id auto increment
 		for (let dayDate of daysList) {
-			console.log(dayDate);
 			await db.query(`INSERT INTO days VALUES (? ,? ,? ,? ,?)`, [
 				id++,
 				dayDate,
@@ -68,17 +68,34 @@ export const createVote = asyncHandler(async (req, res, next) => {
 				neededBuildingObservers,
 			]);
 		}
+
 		// send notification to all taskers about this vote
-		res.json(data);
-	} catch (err) {
+		const transporter = nodemailer.createTransport({
+			service: 'hotmail',
+			auth: {
+				user: '',
+				pass: ''
+			}
+		});
+
+		const mailOptions = {
+			from: '',
+			to: '',
+			subject: '',
+			text: ''
+		};
+
+		transporter.sendMail(mailOptions, (error, info) => {
+			if (error) {
+				throw Error("Email is not sent");
+			}
+			else {
+				res.json({ msg: 'Email is sent', data });
+			}
+		});
+
+	}
+	catch (err) {
 		throw new Error(`vote creation falid ${err}`);
 	}
-})
-/**
- * 
- * 
- * 1- database
- * 2- notification
- * 3- validation
- * 
- */
+});

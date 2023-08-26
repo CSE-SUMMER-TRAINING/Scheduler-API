@@ -69,7 +69,7 @@ CREATE TABLE classes(
 
 CREATE TABLE days(
 	day_id INT AUTO_INCREMENT PRIMARY KEY,
-    day_date DATE NOT NULL,
+    day_date VARCHAR(100) NOT NULL,
     needed_hall_observers INT NOT NULL,
     needed_floor_observers INT NOT NULL,
     needed_building_observers INT NOT NULL,
