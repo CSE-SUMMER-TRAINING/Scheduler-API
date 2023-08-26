@@ -121,5 +121,6 @@ CREATE TABLE vote(
     building_observers_work_days INT NOT NULL,
     start_time DATETIME DEFAULT CURRENT_TIMESTAMP,
     duration_in_hours INT not null,
+    vote_title varchar(200) NOT NULL,
     CONSTRAINT vote_pk PRIMARY KEY (vote_id)
 );
