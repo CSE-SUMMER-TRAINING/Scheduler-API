@@ -172,6 +172,15 @@ function formatTime(seconds) {
 
 export const fetchVotes = asyncHandler(async (req, res, next) => {
   const [vote] = await db.query("SELECT * FROM vote");
+  const [days] = await db.query("SELECT * FROM days");
+  let neededHallsO = 0;
+  let neededFloorO = 0;
+  let neededBuildingO = 0;
+  for (i in days) {
+    neededHallsO += i.needed_hall_observers;
+    neededFloorO += i.needed_floor_observers;
+    neededBuildingO += i.needed_building_observers;
+  }
   console.log(vote);
   if (vote.length) {
     const currentDateTime = new Date();
@@ -186,17 +195,16 @@ export const fetchVotes = asyncHandler(async (req, res, next) => {
     return res.json({
       hasVote: true,
       voteTitle: vote[0].vote_title,
-      neededHallObservers: vote[0].hall_observers_work_days,
-      neededFloorObservers: vote[0].floor_observers_work_days,
-      neededBuildingObservers: vote[0].building_observers_work_days,
-      defaultHallObservers: vote[0].default_hall_observers_work_days,
-      defaultFloorObservers: vote[0].default_floor_observers_work_days,
-      defaultBuildingObservers: vote[0].default_building_observers_work_days,
+      neededHallObservers: neededHallsO,
+      neededFloorObservers: neededFloorO,
+      neededBuildingObservers: neededBuildingO,
+      defaultHallObservers: vote[0].hall_observers_work_days,
+      defaultFloorObservers: vote[0].floor_observers_work_days,
+      defaultBuildingObservers: vote[0].building_observers_work_days,
       timeInMilliSeconds: elapsedTime,
     });
   } else res.json({ hasVote: false });
 });
-
 /**
  *
  *
