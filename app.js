@@ -30,7 +30,7 @@ app.get("/", async (req, res) => {
 	res.send(data)
 })
 
-app.use("/api/user", userRoute)
+app.use("/api/user", userRoute)  // http://localhost:5000/api/user
 app.use("/api/superAdmin", protect, superAdminRoute)
 app.use(notFound)
 app.use(errorHandler)
