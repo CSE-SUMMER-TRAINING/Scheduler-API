@@ -22,39 +22,33 @@ export const createVote = asyncHandler(async (req, res, next) => {
 		duration,
 	} = req.body;
 
+	if(!voteName) {
+		throw Error("برجاء إدخال اسم التكليف");
+	}
+	if (!isPositiveInteger(+duration)) {
+		throw Error("المدة الزمنية للتكليف غير صالحة");
+	}
 	if (
 		!isPositiveInteger(+neededHallObservers) ||
 		!isPositiveInteger(+neededFloorObservers) ||
 		!isPositiveInteger(+neededBuildingObservers)
 	) {
-		throw Error("Number of observers must be an integer > 0");
+		throw Error("عدد المراقبين أو الملاحظين غير صالح");
 	}
 	if (
 		!isPositiveInteger(+floorObserversWorkDays) ||
 		!isPositiveInteger(+buildingObserversWorkDays)
 	) {
-		throw Error("Number of work days must be an integer > 0");
-	}
-	if (!isPositiveInteger(+duration)) {
-		throw Error("Vote duration must be an integer > 0");
+		throw Error("عدد الأيام المطلوبة غير صالح");
 	}
 	if (!isArray(daysList)) {
-		throw Error("The list of days is required");
+		throw Error("برجاء إدخال أيام المراقبة");
 	}
 	daysList.forEach((date) => {
 		if (!isValidDate(date, "boolean")) {
-			throw Error("Invalid dates");
+			throw Error("");
 		}
 	});
-
-	const [vote] = await db.query("SELECT * FROM vote");
-	if (vote.length) {
-		return res.json({
-			hasVote: true,
-			startTime: vote[0].start_time,
-			duration: vote[0].duration_in_hours,
-		});
-	}
 
 	try {
 		// days for each priority selection
@@ -112,6 +106,8 @@ export const createVote = asyncHandler(async (req, res, next) => {
 				});
 			}
 		});
+
+		res.json({ data })
 	}
 	catch (err) {
 		throw new Error(`vote creation falid ${err}`);
@@ -126,12 +122,11 @@ function hoursBetweenDates(startDate, endDate) {
 }
 export const isVote = asyncHandler(async (req, res, next) => {
 	const [vote] = await db.query("SELECT * FROM vote");
-	console.log(vote);
+
 	if (vote.length) {
 		const currentDateTime = new Date();
-		console.log(currentDateTime);
 		let x = hoursBetweenDates(vote[0].start_time, currentDateTime);
-		console.log(x);
+
 		if (x > vote[0].duration_in_hours) {
 			db.query("DELETE FROM vote");
 			return res.json({ hasVote: false });
@@ -141,16 +136,19 @@ export const isVote = asyncHandler(async (req, res, next) => {
 			startTime: vote[0].start_time,
 			duration: vote[0].duration_in_hours,
 		});
-	} else res.json({ hasVote: false });
+	}
+	else {
+		res.json({ hasVote: false });
+	}
 });
 
 function formatTime(seconds) {
-  const days = Math.floor(seconds / 86400);
-  const hours = Math.floor((seconds % 86400) / 3600);
-  const minutes = Math.floor((seconds % 3600) / 60);
-  const secs = seconds % 60;
+	const days = Math.floor(seconds / 86400);
+	const hours = Math.floor((seconds % 86400) / 3600);
+	const minutes = Math.floor((seconds % 3600) / 60);
+	const secs = seconds % 60;
 
-  return `${days.toString().padStart(2, '0')}d ${hours.toString().padStart(2, '0')}h ${minutes.toString().padStart(2, '0')}m ${secs.toString().padStart(2, '0')}s`;
+	return `${days.toString().padStart(2, '0')}d ${hours.toString().padStart(2, '0')}h ${minutes.toString().padStart(2, '0')}m ${secs.toString().padStart(2, '0')}s`;
 }
 
 // function countdownTimer(durationInSeconds) {
@@ -171,39 +169,39 @@ function formatTime(seconds) {
 // countdownTimer(3 * 24 * 3600 + 2 * 3600 + 30 * 60 + 15);
 
 export const fetchVotes = asyncHandler(async (req, res, next) => {
-  const [vote] = await db.query("SELECT * FROM vote");
-  const [days] = await db.query("SELECT * FROM days");
-  let neededHallsO = 0;
-  let neededFloorO = 0;
-  let neededBuildingO = 0;
-  for (i in days) {
-    neededHallsO += i.needed_hall_observers;
-    neededFloorO += i.needed_floor_observers;
-    neededBuildingO += i.needed_building_observers;
-  }
-  console.log(vote);
-  if (vote.length) {
-    const currentDateTime = new Date();
-    // console.log(currentDateTime);
-    // let x = hoursBetweenDates(vote[0].start_time, currentDateTime);
-    // console.log(x);
-    if (x > vote[0].duration_in_hours) {
-      db.query("DELETE FROM vote");
-      return res.json({ hasVote: false });
-    }
-    const elapsedTime = currentDateTime - vote[0].start_time;
-    return res.json({
-      hasVote: true,
-      voteTitle: vote[0].vote_title,
-      neededHallObservers: neededHallsO,
-      neededFloorObservers: neededFloorO,
-      neededBuildingObservers: neededBuildingO,
-      defaultHallObservers: vote[0].hall_observers_work_days,
-      defaultFloorObservers: vote[0].floor_observers_work_days,
-      defaultBuildingObservers: vote[0].building_observers_work_days,
-      timeInMilliSeconds: elapsedTime,
-    });
-  } else res.json({ hasVote: false });
+	const [vote] = await db.query("SELECT * FROM vote");
+	const [days] = await db.query("SELECT * FROM days");
+	let neededHallsO = 0;
+	let neededFloorO = 0;
+	let neededBuildingO = 0;
+	for (i in days) {
+		neededHallsO += i.needed_hall_observers;
+		neededFloorO += i.needed_floor_observers;
+		neededBuildingO += i.needed_building_observers;
+	}
+	console.log(vote);
+	if (vote.length) {
+		const currentDateTime = new Date();
+		// console.log(currentDateTime);
+		// let x = hoursBetweenDates(vote[0].start_time, currentDateTime);
+		// console.log(x);
+		if (x > vote[0].duration_in_hours) {
+			db.query("DELETE FROM vote");
+			return res.json({ hasVote: false });
+		}
+		const elapsedTime = currentDateTime - vote[0].start_time;
+		return res.json({
+			hasVote: true,
+			voteTitle: vote[0].vote_title,
+			neededHallObservers: neededHallsO,
+			neededFloorObservers: neededFloorO,
+			neededBuildingObservers: neededBuildingO,
+			defaultHallObservers: vote[0].hall_observers_work_days,
+			defaultFloorObservers: vote[0].floor_observers_work_days,
+			defaultBuildingObservers: vote[0].building_observers_work_days,
+			timeInMilliSeconds: elapsedTime,
+		});
+	} else res.json({ hasVote: false });
 });
 /**
  *

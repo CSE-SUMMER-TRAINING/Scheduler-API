@@ -15,9 +15,8 @@ export const protect = asyncHandler(async (req, res, next) => {
 			next();
 		}
 		else {
-			const { user, id } = decodedToken;
+			const { user } = decodedToken;
 			req.user = user;
-			req.id = id;
 			next();
 		}
 	});
