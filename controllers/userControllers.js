@@ -20,7 +20,7 @@ export const login = asyncHandler(async (req, res) => {
 
 		res.cookie("jwt", token, { httpOnly: true, maxAge: 30 * 24 * 60 * 60 * 1000 });
 		if (user.priority == 0) {
-			res.cookie("key", password, { httpOnly: true, maxAge: 30 * 24 * 60 * 60 * 1000 });
+			res.cookie("key", user.password, { httpOnly: true, maxAge: 30 * 24 * 60 * 60 * 1000 });
 		}
 		else {
 			res.cookie("key", null, { httpOnly: true, maxAge: 30 * 24 * 60 * 60 * 1000 });

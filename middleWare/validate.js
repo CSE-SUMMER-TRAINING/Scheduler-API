@@ -4,19 +4,19 @@ import validator from "email-validator";
 
 export const loginCheck = async (email, password) => {
     if (!email) {
-        throw Error('enter an email');
+        throw Error('برجاء إدخال البريد الإلكتروني');
     }
     if (!validator.validate(email)) {
-        throw Error('enter a valid email');
+        throw Error('البريد الإلكتروني غير صالح');
     }
     if (!password) {
-        throw Error('enter a password');
+        throw Error('برجاء إدخال كلمة المرور');
     }
 
     const [[ user ]] = await db.query(`SELECT * FROM employees WHERE email = ?`, email);
 
     if (!user) {
-        throw Error('email is not found');
+        throw Error('البريد الإلكتروني غير موجود في قاعدة البيانات');
     }
 
     const ok = await bcrypt.compare(password, user.password);
@@ -24,6 +24,6 @@ export const loginCheck = async (email, password) => {
         return user;
     }
     else {
-        throw Error('incorrect password');
+        throw Error('كلمة المرور غير صحيحه');
     }
 };
